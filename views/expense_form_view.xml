@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="model_logic_expense_form_view" model="ir.ui.view">
+        <field name="name">Logic Expenses</field>
+        <field name="model">logic.expenses</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <widget name="attach_document" string="Attach Receipt" action="message_post" states="draft"/>
+                    <button name="action_submit_to_manager" type="object" string="Submit to Manager"
+                            class="oe_highlight"
+                            states="draft"/>
+
+                    <button name="action_head_approval" type="object" string="Head Approve" states="head_approval"
+                            class="oe_highlight"/>
+                    <button name="action_hr_approval" type="object" string="HR Approve" states="hr_approval"
+                            class="oe_highlight" groups="logic_base.hr_manager_logic_base"/>
+                    <button name="action_accounts_approval" type="object" string="Accounts Approve" class="oe_highlight"
+                            states="accounts_approval" groups="logic_base.accounts_logic_base"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            states="head_approval,hr_approval,accounts_approval"/>
+                    <button name="action_return_to_draft" type="object" string="Return to Draft"
+                            states="head_approval"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_get_attachment_view"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                type="object">
+                            <field name="attachment_number" widget="statinfo" string="Receipts"
+                                   options="{'reload_on_button': true}"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Register payment" bg_color="bg-primary"
+                            attrs="{'invisible': [('state', '!=', 'register_payment')]}"/>
+                    <widget name="web_ribbon" title="Paid" bg_color="bg-success"
+                            attrs="{'invisible': [('state', '!=', 'paid')]}"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Lunch with Customer"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="expense_type"/>
+                            <field name="mode_of_travelling" attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
+                            <field name="date" string="Expense Date"/>
+                            <field name="company_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="from_location"
+                                   attrs="{'invisible': [('expense_type', '!=', 'travel')], 'required' :[('expense_type', '=', 'travel')]}"/>
+                            <field name="destination"
+                                   attrs="{'invisible': [('expense_type', '!=', 'travel')], 'required' :[('expense_type', '=', 'travel')]}"/>
+                            <field name="total_cost" attrs="{'invisible': [('state', '!=', 'draft')]}" widget="monetary"
+                                   placeholder="enter total expense"/>
+                            <field name="payment_date" attrs="{'invisible': [('state', '!=', 'paid')]}" string="Payment Date"/>
+                            <!--                            <field name="purpose"/>-->
+                        </group>
+                        <div>
+                            <field name="description" class="oe_inline" placeholder="Notes..."/>
+                        </div>
+                    </group>
+                    <group name="note_group" col="6" attrs="{'invisible': [('state', '=', 'draft')]}">
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="total_cost">
+
+                            <div class="oe_subtotal_footer_separator oe_inline">
+                                <label for="total_cost"/>
+                            </div>
+                            <field name="total_cost" nolabel="1" class="oe_subtotal_footer_separator"
+                                   widget='monetary' options="{'currency_field': 'currency_id'}"/>
+
+                        </group>
+                    </group>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids" options="{'post_refresh': 'recipients'}"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="model_logic_expense_tree_view" model="ir.ui.view">
+        <field name="name">Logic Expenses</field>
+        <field name="model">logic.expenses</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="employee_id"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="expense_type"/>
+                <field name="total_cost" widget="monetary"/>
+                <field name="state" widget="badge" decoration-success="state == 'paid'"
+                       decoration-primary="state == 'register_payment'" decoration-info="state == 'head_approval'"
+                       decoration-danger="state == 'cancel'"/>
+            </tree>
+
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="logic_expenses_action">
+        <field name="name">Logic Expenses</field>
+        <field name="res_model">logic.expenses</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="inherit_payment_request_form"  model="ir.ui.view">
+        <field name="name">expense.view.form.inherit</field>
+        <field name="model">payment.request</field>
+        <field name="inherit_id" ref="logic_payments.payment_request_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='source_type']" position="after">
+                <field name="expense_rec_id" attrs="{'invisible': [('source_type', '!=', 'expenses')]}"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <menuitem name="Logic Expenses"
+              id="expenses_logic_main_menu"
+              web_icon="logic_expenses/static/description/icon.png"
+              sequence="10"/>
+
+    <menuitem name="Expenses" id="expenses_logic_menu"
+              parent="expenses_logic_main_menu"
+              sequence="1"/>
+
+    <menuitem name="Expenses" id="expenses_logic_menu_sec"
+              action="logic_expenses_action"
+              parent="expenses_logic_menu"
+              sequence="1"/>
+
+</odoo>

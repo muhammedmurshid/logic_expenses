@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="mail_logic_expenses" model="mail.activity.type">
+            <field name="name">Expense Activity</field>
+            <field name="res_model_id" ref="logic_expenses.model_logic_expenses"/>
+            <field name="delay_count">30</field>
+        </record>
+    </data>
+</odoo>
