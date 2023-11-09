@@ -33,7 +33,23 @@
                             <field name="attachment_number" widget="statinfo" string="Receipts"
                                    options="{'reload_on_button': true}"/>
                         </button>
+                        <button name="action_get_payment_view"
+                                class="oe_stat_button"
+                                icon="fa-rupee"
+                                type="object" groups="logic_base.accounts_logic_base">
+                            <div class="o_field_widget o_stat_info">
+                                <!--                                <span class="o_stat_value">-->
+                                <!--                                    <field name="payment_count" nolabel="1"/>-->
+                                <!--                                </span>-->
+                                <span class="o_stat_text">
+                                    Payments
+                                </span>
+                            </div>
+                            <!--                            <field name="attachment_number" widget="statinfo" string="Receipts"-->
+                            <!--                                   options="{'reload_on_button': true}"/>-->
+                        </button>
                     </div>
+
                     <widget name="web_ribbon" title="Register payment" bg_color="bg-primary"
                             attrs="{'invisible': [('state', '!=', 'register_payment')]}"/>
                     <widget name="web_ribbon" title="Paid" bg_color="bg-success"
@@ -48,27 +64,52 @@
                     <group>
                         <group>
                             <field name="employee_id"/>
-                            <field name="expense_type"/>
-                            <field name="mode_of_travelling" attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
-                            <field name="date" string="Expense Date"/>
+                            <!--                            <field name="expense_type"/>-->
+                            <!--                            <field name="mode_of_travelling" attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>-->
+                            <field name="date" string="Date"/>
                             <field name="company_id"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
                         <group>
-                            <field name="from_location"
-                                   attrs="{'invisible': [('expense_type', '!=', 'travel')], 'required' :[('expense_type', '=', 'travel')]}"/>
-                            <field name="destination"
-                                   attrs="{'invisible': [('expense_type', '!=', 'travel')], 'required' :[('expense_type', '=', 'travel')]}"/>
-                            <field name="total_cost" attrs="{'invisible': [('state', '!=', 'draft')]}" widget="monetary"
-                                   placeholder="enter total expense"/>
-                            <field name="payment_date" attrs="{'invisible': [('state', '!=', 'paid')]}" string="Payment Date"/>
+                            <!--                            <field name="from_location"-->
+                            <!--                                   attrs="{'invisible': [('expense_type', '!=', 'travel')], 'required' :[('expense_type', '=', 'travel')]}"/>-->
+                            <!--                            <field name="destination"-->
+                            <!--                                   attrs="{'invisible': [('expense_type', '!=', 'travel')], 'required' :[('expense_type', '=', 'travel')]}"/>-->
+                            <!--                            <field name="total_cost" attrs="{'invisible': [('state', '!=', 'draft')]}" widget="monetary"-->
+                            <!--                                   placeholder="enter total expense"/>-->
+                            <field name="payment_date" attrs="{'invisible': [('state', '!=', 'paid')]}"
+                                   string="Payment Date"/>
                             <!--                            <field name="purpose"/>-->
                         </group>
-                        <div>
-                            <field name="description" class="oe_inline" placeholder="Notes..."/>
-                        </div>
+
                     </group>
-                    <group name="note_group" col="6" attrs="{'invisible': [('state', '=', 'draft')]}">
+
+                    <notebook>
+                        <page string="Expenses" name="expenses">
+                            <field name="expense_ids" widget="one2many">
+                                <tree string="Expense" editable="bottom">
+                                    <field name="expense_date" optional="show"/>
+                                    <field name="purpose"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="expense_type"/>
+                                    <field name="mode_of_travelling"
+                                           attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
+                                    <field name="from_location"
+                                           attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
+                                    <field name="destination"
+                                           attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
+                                    <field name="km_travel" attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
+                                    <field name="total_expense" widget="monetary"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Description" name="expenses">
+                            <div>
+                                <field name="description" class="oe_inline" placeholder="Notes..."/>
+                            </div>
+                        </page>
+                    </notebook>
+                    <group name="note_group" col="6">
                         <group class="oe_subtotal_footer oe_right" colspan="2" name="total_cost">
 
                             <div class="oe_subtotal_footer_separator oe_inline">
@@ -79,7 +120,6 @@
 
                         </group>
                     </group>
-
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
@@ -95,9 +135,10 @@
         <field name="model">logic.expenses</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="date"/>
                 <field name="employee_id"/>
                 <field name="currency_id" invisible="1"/>
-                <field name="expense_type"/>
+
                 <field name="total_cost" widget="monetary"/>
                 <field name="state" widget="badge" decoration-success="state == 'paid'"
                        decoration-primary="state == 'register_payment'" decoration-info="state == 'head_approval'"
@@ -113,7 +154,7 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <record id="inherit_payment_request_form"  model="ir.ui.view">
+    <record id="inherit_payment_request_form" model="ir.ui.view">
         <field name="name">expense.view.form.inherit</field>
         <field name="model">payment.request</field>
         <field name="inherit_id" ref="logic_payments.payment_request_form_view"/>

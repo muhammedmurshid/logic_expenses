@@ -23,9 +23,9 @@ class LogicExpenseForm(models.Model):
         ('bus', 'Bus'), ('train', 'Train'), ('flight', 'Flight'), ('bike', 'Bike'), ('other', 'Other')
     ], string='Mode of Travelling')
     date = fields.Date(string='Date', default=lambda self: fields.Date.context_today(self))
-    from_location = fields.Char(string='From Location')
-    destination = fields.Char(string='Destination')
-    total_cost = fields.Float(string='Total Cost')
+    # from_location = fields.Char(string='From Location')
+    # destination = fields.Char(string='Destination')
+    expense_ids = fields.One2many('expense.list', 'exp_id', string="Expenses")
     purpose = fields.Text(string='Purpose')
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
     description = fields.Text(string='Description')
@@ -46,6 +46,17 @@ class LogicExpenseForm(models.Model):
         res['domain'] = [('res_model', '=', 'logic.expenses'), ('res_id', 'in', self.ids)]
         res['context'] = {'default_res_model': 'logic.expenses', 'default_res_id': self.id}
         return res
+
+    def action_get_payment_view(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Payments',
+            'view_mode': 'tree,form',
+            'res_model': 'payment.request',
+            'domain': [('expense_rec_id', '=', self.id)],
+            'context': "{'create': False}"
+        }
 
     def action_submit_to_manager(self):
         for i in self:
@@ -110,6 +121,19 @@ class LogicExpenseForm(models.Model):
 
         })
         self.write({'state': 'register_payment'})
+
+    @api.depends('expense_ids.total_expense')
+    def _total_expenses(self):
+
+        total = 0
+        for order in self.expense_ids:
+            total += order.total_expense
+        self.update({
+            'total_cost': total,
+
+        })
+
+    total_cost = fields.Float(string='Total Cost', compute='_total_expenses', store=True)
 
 
 class ExpenseSelection(models.Model):
