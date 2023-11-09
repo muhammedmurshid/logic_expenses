@@ -18,4 +18,16 @@ class ExpenseListForm(models.Model):
     exp_id = fields.Many2one('logic.expenses', string="Expense ID", ondelete='cascade')
     from_location = fields.Char(string='From Location')
     destination = fields.Char(string='Destination')
+    attach_ticket = fields.Binary(string='Attach Ticket')
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
+
+    def action_get_attachment_view(self):
+        res = self.env['ir.actions.act_window']._for_xml_id('base.action_attachment')
+        res['domain'] = [('res_model', '=', 'logic.expenses'), ('res_id', 'in', self.exp_id.ids)]
+        res['context'] = {
+            'default_res_model': 'expense.list',
+            'default_res_id': self.id,
+            'create': False,
+            'edit': False,
+        }
+        return res

@@ -98,7 +98,13 @@
                                            attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
                                     <field name="destination"
                                            attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
-                                    <field name="km_travel" attrs="{'invisible': [('expense_type', '!=', 'travel')]}"/>
+                                    <button name="action_get_attachment_view" string="View Attachments" type="object"
+                                            icon="fa-paperclip"
+                                            attrs="{'invisible': [('mode_of_travelling', 'not in', ['bus','train'])]}"/>
+                                    <!--                                    <field name="attach_ticket"-->
+                                    <!--                                           attrs="{'invisible': [('mode_of_travelling', 'not in', ['bus','train'])]}"/>-->
+                                    <field name="km_travel"
+                                           attrs="{'invisible': [('mode_of_travelling', 'in', ['bus','train'])]}"/>
                                     <field name="total_expense" widget="monetary"/>
                                 </tree>
                             </field>
