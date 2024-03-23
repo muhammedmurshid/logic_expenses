@@ -69,7 +69,7 @@ class LogicExpenseForm(models.Model):
         self.write({'state': 'draft'})
 
     def action_head_approval(self):
-        if self.employee_id.parent_id.user_id.id == self.env.user.id or self.employee_id.incharge_id.user_id.id == self.env.user.id:
+        if self.employee_id.parent_id.user_id.id == self.env.user.id or self.employee_id.in_charge_id.user_id.id == self.env.user.id:
             activity_id = self.env['mail.activity'].search(
                 [('res_id', '=', self.id), ('user_id', '=', self.env.user.id), (
                     'activity_type_id', '=', self.env.ref('logic_expenses.mail_logic_expenses').id)])
