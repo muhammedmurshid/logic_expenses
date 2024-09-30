@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="expense_cancellation_wizard_form" model="ir.ui.view">
+        <field name="name">expense.cancellation.wizard</field>
+        <field name="model">expense.cancellation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Cancellation">
+                <footer>
+                    <button name="action_sent_description" class="oe_highlight" type="object" string="Done"/>
+                </footer>
+                <group class="oe_title">
+                    <field name="description"/>
+                </group>
+
+            </form>
+        </field>
+    </record>
+    <record id="expense_cancellation_wizard_action" model="ir.actions.act_window">
+        <field name="name">Expense Cancellation Wizard</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">expense.cancellation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="expense_cancellation_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

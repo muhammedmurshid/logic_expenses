@@ -62,7 +62,7 @@ class LogicExpenseForm(models.Model):
         for i in self:
             user_id = self.env.user.employee_id.parent_id.user_id.id
             i.activity_schedule('logic_expenses.mail_logic_expenses', user_id=user_id,
-                                note=f'{i.employee_id.name} Expense approval request sent; please approve or reject.')
+                                note=f'{i.employee_id.name} Expense approval request sent. please approve or reject.')
         self.write({'state': 'head_approval'})
 
     def action_return_to_draft(self):
@@ -77,17 +77,18 @@ class LogicExpenseForm(models.Model):
             user_id = self.env.ref('logic_base.hr_manager_logic_base').users
             for j in user_id:
                 self.activity_schedule('logic_expenses.mail_logic_expenses', user_id=j.id,
-                                       note=f'{self.employee_id.name} Expense approval request sent; please approve or reject.')
+                                       note=f'{self.employee_id.name} Expense approval request sent. please approve or reject.')
             self.write({'state': 'hr_approval'})
         else:
             raise ValidationError(_('You are not allowed to approve this expense'))
 
     def action_reject(self):
-        activity_id = self.env['mail.activity'].search(
-            [('res_id', '=', self.id), ('user_id', '=', self.env.user.id), (
-                'activity_type_id', '=', self.env.ref('logic_expenses.mail_logic_expenses').id)])
-        activity_id.action_feedback(feedback=f'expense request rejected.')
-        self.write({'state': 'cancel'})
+        return {'name': _('Cancellation Wizard'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'expense.cancellation.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {'default_record_id': self.id}}
 
     def action_hr_approval(self):
         activity_id = self.env['mail.activity'].search(
@@ -98,7 +99,7 @@ class LogicExpenseForm(models.Model):
         user_id = self.env.ref('logic_base.accounts_logic_base').users
         for j in user_id:
             self.activity_schedule('logic_expenses.mail_logic_expenses', user_id=j.id,
-                                   note=f'{self.employee_id.name} Expense approval request sent; please approve or reject.')
+                                   note=f'{self.employee_id.name} Expense approval request sent. please approve or reject.')
         self.write({'state': 'accounts_approval'})
 
     def action_accounts_approval(self):
@@ -163,3 +164,19 @@ class AccountPaymentInheritExpense(models.Model):
                 })
 
         return result
+
+
+class ExpenseCancellation(models.TransientModel):
+    _name = 'expense.cancellation.wizard'
+    _description = 'Expense Wizard'
+
+    description = fields.Text(string='Description')
+    record_id = fields.Many2one('logic.expenses', string='Record')
+
+    def action_sent_description(self):
+        print(self.record_id, 'id')
+        activity_id = self.env['mail.activity'].search(
+            [('res_id', '=', self.record_id.id), ('user_id', '=', self.env.user.id), (
+                'activity_type_id', '=', self.env.ref('logic_expenses.mail_logic_expenses').id)])
+        activity_id.action_feedback(feedback=f'{self.description}. so your request is rejected.')
+        self.record_id.write({'state': 'cancel'})

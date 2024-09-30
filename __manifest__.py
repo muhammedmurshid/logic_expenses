@@ -8,6 +8,7 @@
         'security/user_rules.xml',
         'views/expense_form_view.xml',
         'data/activity.xml',
+        'views/cancallation_wizard.xml'
 
     ],
 
