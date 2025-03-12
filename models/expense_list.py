@@ -16,6 +16,7 @@ class ExpenseListForm(models.Model):
     ], string='Mode of Travelling')
     km_travel = fields.Float(string='Km Travel')
     exp_id = fields.Many2one('logic.expenses', string="Expense ID", ondelete='cascade')
+    # state = fields.Char(related="exp_id.state")
     from_location = fields.Char(string='From Location')
     destination = fields.Char(string='Destination')
     attach_ticket = fields.Binary(string='Attach Ticket')

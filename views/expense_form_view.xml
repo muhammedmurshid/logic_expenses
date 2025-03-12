@@ -88,7 +88,7 @@
 
                     <notebook>
                         <page string="Expenses" name="expenses">
-                            <field name="expense_ids" widget="one2many">
+                            <field name="expense_ids" widget="one2many" attrs="{'readonly': [('state', '!=', 'draft')]}">
                                 <tree string="Expense" editable="bottom">
                                     <field name="expense_date" optional="show"/>
                                     <field name="purpose"/>
